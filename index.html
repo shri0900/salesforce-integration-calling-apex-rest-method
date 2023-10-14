@@ -5,11 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Get Account Data</title>
 </head>
+<style>
+    /* CSS styling */
+    body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    button {
+        background-color: #4aa3cd;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #45a049;
+    }
+
+    input[type="text"] {
+        padding: 10px;
+        margin: 5px 0;
+    }
+</style>
 <body>
     <button onclick="authenticate()">Authenticate with Salesforce</button>
     <br><br>
+    <label for="accountId">Account ID:</label>
+    <input type="text" id="accountId" placeholder="Enter Account ID">
     <button id="getData">Get Account Data</button>
-    <pre id="output"></pre>
+    
+    <table id="accountTable" style="display:none;">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>URL</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td id="tableId"></td>
+                <td id="tableName"></td>
+                <td id="tableUrl"></td>
+            </tr>
+        </tbody>
+    </table>
+   
 
     <script>
         let accessToken = "";
@@ -38,8 +97,8 @@
 
         document.getElementById('getData').addEventListener('click', function() {
             const token = accessToken; // Replace with your actual token
-            const instanceURL = instanceUrl; // Replace with your Salesforce instance
-            const accountId = '0015j00001CjtHsAAJ'; // Replace with an actual Account ID
+            const instanceURL = instanceUrl; 
+            const accountId = document.getElementById('accountId').value; 
             
             fetch(`${instanceURL}/services/apexrest/AccountAPI/${accountId}`, {
                 method: 'GET',
@@ -50,7 +109,12 @@
             })
             .then(response => response.json())
             .then(data => {
-                document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+                document.getElementById('tableId').textContent = data.Id;
+                document.getElementById('tableName').textContent = data.Name;
+                document.getElementById('tableUrl').textContent = data.attributes.url;
+
+                // Display the table
+                document.getElementById('accountTable').style.display = "table";
             })
             .catch(error => {
                 console.error('Error:', error);
