@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Account Data</title>
+</head>
+<body>
+    <button onclick="authenticate()">Authenticate with Salesforce</button>
+    <br><br>
+    <button id="getData">Get Account Data</button>
+    <pre id="output"></pre>
+
+    <script>
+        let accessToken = "";
+        let instanceUrl = "";
+
+        function authenticate() {
+            // Salesforce OAuth2 endpoint
+            const url = "https://login.salesforce.com/services/oauth2/authorize?" +
+                "response_type=token&" +
+                "client_id=3MVG9pRzvMkjMb6n5X4jNOUWwvWGgCqTQd8jRIIRK2zc2XZZMgUpixMrzB8lcqWRybAZ3pWOmOpHUeVJlBUxS&" +
+                "redirect_uri=https://www.google.com/";
+
+            window.location.href = url;
+        }
+
+        function parseReturnedHash() {
+            const hash = window.location.hash.substring(1);
+            const params = new URLSearchParams(hash);
+            accessToken = params.get("access_token");
+            instanceUrl = params.get("instance_url");
+        }
+
+        window.onload = () => {
+            parseReturnedHash();
+        }
+
+        document.getElementById('getData').addEventListener('click', function() {
+            const token = accessToken; // Replace with your actual token
+            const instanceURL = instanceUrl; // Replace with your Salesforce instance
+            const accountId = '0015j00001CjtHsAAJ'; // Replace with an actual Account ID
+            
+            fetch(`${instanceURL}/services/apexrest/AccountAPI/${accountId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
